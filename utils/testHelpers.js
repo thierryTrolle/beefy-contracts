@@ -44,6 +44,9 @@ const zapNativeToToken = async ({ amount, want, nativeTokenAddr, unirouter, swap
       const token0Bal = await token0.balanceOf(recipient);
       const token1Bal = await token1.balanceOf(recipient);
 
+      console.log("token0Bal=" + token0Bal);
+      console.log("token1Bal=" + token1Bal);
+
       await token0.approve(unirouter.address, token0Bal);
       await token1.approve(unirouter.address, token1Bal);
 
@@ -109,6 +112,11 @@ const getUnirouterData = address => {
   switch (address) {
     case "0xA52aBE4676dbfd04Df42eF7755F01A3c41f28D27":
     case "0x60aE616a2155Ee3d9A68541Ba4544862310933d4":
+      return {
+        interface: "IUniswapRouterAVAX",
+        swapSignature: "swapExactAVAXForTokens",
+      };
+    case "0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106":
       return {
         interface: "IUniswapRouterAVAX",
         swapSignature: "swapExactAVAXForTokens",

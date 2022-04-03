@@ -3,10 +3,10 @@ import { avax } from "../../node_modules/blockchain-addressbook/build/address-bo
 import { ethers } from "hardhat";
 import { chainCallFeeMap } from "../../utils/chainCallFeeMap";
 
-const { zapNativeToToken, getVaultWant, unpauseIfPaused, getUnirouterData } = require("../../utils/testHelpers");
+const { zapNativeToToken, swapNativeForToken, getVaultWant, unpauseIfPaused, getUnirouterData } = require("../../utils/testHelpers");
 const { delay } = require("../../utils/timeHelpers");
 
-const TIMEOUT = 10 * 60 * 1000000;
+const TIMEOUT = 100 * 60 * 1000000;
 
 const chainName = "avax";
 const { beefyfinance } = avax.platforms;
@@ -36,6 +36,23 @@ describe("joeVaultLifecycleTest", () => {
     unirouter = await ethers.getContractAt(unirouterData.interface, unirouterAddr);
     want = await getVaultWant(vault, config.wnative);
 
+    //FIXME path to give some spell to deployer
+    // await swapNativeForToken({ 
+    //   unirouter, 
+    //   amount:config.testAmount, 
+    //   nativeTokenAddr: config.wnative, 
+    //   token:want, 
+    //   recipient: deployer.address, 
+    //   swapSignature : unirouterData.swapSignature
+    // });
+    // //await want.transfer(deployer.address, 1000);
+    // let deployerSpellBalance = await want.balanceOf(deployer.address);
+    // console.log("deployer spell ="+deployerSpellBalance);
+    //--------------------------------------------------------------------------
+    const customSwapSignature={
+      interface: "IUniswapRouterAVAX",
+      swapSignature: "swapExactAVAXForTokens",
+    };
     await zapNativeToToken({
       amount: config.testAmount,
       want,
@@ -45,12 +62,16 @@ describe("joeVaultLifecycleTest", () => {
       recipient: deployer.address,
     });
     const wantBal = await want.balanceOf(deployer.address);
+    console.log("beforeEach want.balanceOf(deployer.address)="+wantBal);
     await want.transfer(other.address, wantBal.div(2));
     await unpauseIfPaused(strategy, deployer);
   });
 
   it("User can deposit and withdraw from the vault.", async () => {
     const wantBalStart = await want.balanceOf(deployer.address);
+
+    console.debug("balanceOf(deployer.address)="+wantBalStart);
+    console.debug("deployer.address="+deployer.address);
 
     await want.approve(vault.address, wantBalStart);
     await vault.depositAll();
