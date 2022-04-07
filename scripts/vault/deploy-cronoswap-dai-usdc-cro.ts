@@ -6,22 +6,24 @@ import { verifyContract } from "../../utils/verifyContract";
 import { BeefyChain } from "../../utils/beefyChain";
 // import { checkGas } from "../../utils/checkGas";
 
-import { avax } from "blockchain-addressbook/build/address-book/avax";
+import { cronos } from "blockchain-addressbook/build/address-book/cronos";
+
 import { BigNumber } from "ethers";
 
 const registerSubsidy = require("../../utils/registerSubsidy");
 
 const {
-  platforms: { pangolin, beefyfinance },
+  platforms: { crona, beefyfinance },
   tokens: {
-    WAVAX: { address: WAVAX },
-    PNG: { address: PNG },
-    SPELL: { address: SPELL },
+    WCRO : { address: WCRO },
+    CRONA: { address: CRONA },
+    DAI: { address: DAI },
+    USDC: { address: USDC },
   },
-} = avax;
+} = cronos;
 
 const shouldCheckGas = false; // You can use this on a live deployment to delay until gas is cheap
-const shouldVerifyOnEtherscan = true; // Always verify on live deployment
+const shouldVerifyOnEtherscan = false; // Always verify on live deployment
 const shouldTransferOwner = true; // Always
 const shouldSetPendingRewardsFunctionName = false; // Used for some strats and not others
 const shouldHarvestOnDeposit = false; // Used for low fee chains (callFee = 11)
@@ -29,8 +31,8 @@ const shouldHarvestOnDeposit = false; // Used for low fee chains (callFee = 11)
 const gasLimit = BigNumber.from(web3.utils.toWei("30", "Gwei"));
 
 const vaultParams = {
-  mooName: "Moo Pangolin SPELL-AVAX",
-  mooSymbol: "MooPangolinSPELL-AVAX",
+  mooName: "Moo cronaV2 DAI-USDC",
+  mooSymbol: "MooCronaV2DAI-USDC",
   delay: 21600,
 };
 
@@ -38,22 +40,22 @@ const vaultOwner = beefyfinance.vaultOwner;
 const strategyOwner = beefyfinance.strategyOwner;
 
 const strategyParams = {
-  want: "0xD4CBC976E1a1A2bf6F4FeA86DEB3308d68638211",
-  chef: pangolin.minichef,
-  poolId: 3,
-  unirouter: pangolin.router,
+  want: "0xaebafdbe975db0bfbf4e95a6493cb93d02cc86ae",
+  chef: "0x7B1982b896CF2034A0674Acf67DC7924444637E4",//FIXME put on addressbook
+  poolId: 10,
+  unirouter: "0xcd7d16fB918511BF7269eC4f48d61D79Fb26f918",//FIXME put on addressbook
   strategist: "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266", // insert your wallet here
   keeper: beefyfinance.keeper,
   beefyFeeRecipient: beefyfinance.beefyFeeRecipient,
-  outputToNativeRoute: [PNG, WAVAX],
-  outputToLp0Route: [PNG, WAVAX],
-  outputToLp1Route: [PNG, WAVAX, SPELL],
+  outputToNativeRoute: [CRONA, WCRO],
+  outputToLp0Route: [CRONA, USDC],
+  outputToLp1Route: [CRONA, WCRO, DAI],
   pendingRewardsFunctionName: "pendingSpirit", // unused for GaugeLP
 };
 
 const contractNames = {
   vault: "BeefyVaultV6",
-  strategy: "StrategyPangolinMiniChefLP",
+  strategy: "StrategyCronaMasterChefV2LP",
 };
 
 async function main() {
